@@ -61,7 +61,7 @@ export default class Modal extends Phaser.Scene {
     this.top = this.add.sprite(this.mid.getTopCenter().x, this.mid.getTopCenter().y, 'side').setOrigin(0.5, 1).setAlpha(0).setTint(0xfefef4)
     this.bot = this.add.sprite(this.mid.getBottomCenter().x, this.mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setAlpha(0).setTint(0xf8ffbe).setFlipY(true)
     const title: Phaser.GameObjects.Text = this.add.text(this.top.getTopCenter().x, this.top.getTopCenter().y + 4, this.lang.stageClear, {
-      font: '60px Space', color: 'white'
+      font: '60px Marvin', color: 'white'
     }).setOrigin(0.5, 0).setStroke('#000000', 3).setAlpha(0)
     this.fadeOut([ this.top, this.mid, this.bot, title ])
 

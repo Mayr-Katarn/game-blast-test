@@ -6,3 +6,8 @@ interface Icell {
   row: number
   empty: boolean
 }
+
+interface Iconfig {
+  turns: number
+  targetScore: number
+}

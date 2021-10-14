@@ -39,7 +39,6 @@ export default class ProgressLine extends Phaser.GameObjects.Container {
       onUpdate: (): void => { this.lineRight.setX(this.lineMid.getRightCenter().x) },
       width,
       duration: 1000,
-      delay: 1540,
       ease: 'Power3'
     })
     return this

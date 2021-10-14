@@ -5,10 +5,13 @@ const yellow: any = require("./../../assets/images/tiles/yellow.png");
 const pink: any = require("./../../assets/images/tiles/pink.png");
 
 const field: any = require("./../../assets/images/field.png");
-const lineSide: any = require("./../../assets/images/line-side.png");
-const lineMid: any = require("./../../assets/images/line-mid.png");
-const progressBarBg: any = require("./../../assets/images/progress-bar-bg.png");
-const progressBarLine: any = require("./../../assets/images/progress-bar-line.png");
+
+const lineSide: any = require("./../../assets/images/hud/line-side.png");
+const lineMid: any = require("./../../assets/images/hud/line-mid.png");
+const progressBarBg: any = require("./../../assets/images/hud/progress-bar-bg.png");
+const progressBarLine: any = require("./../../assets/images/hud/progress-bar-line.png");
+const scoreBar: any = require("./../../assets/images/hud/score-bar.png");
+const ball: any = require("./../../assets/images/hud/ball.png");
 
 
 export default class Preload extends Phaser.Scene {
@@ -21,7 +24,7 @@ export default class Preload extends Phaser.Scene {
     // прогресс загрузки
     this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'pixel').setTint(0x4E2393).setOrigin(0)
     let text: Phaser.GameObjects.Text = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 120, '0%', {
-      font: '24px Space',
+      font: '24px Marvin',
       color: '#54D7BD'
     }).setDepth(1).setOrigin(0.5, 0.5);
   
@@ -48,12 +51,14 @@ export default class Preload extends Phaser.Scene {
     this.load.image('field', field)
     this.load.image('progress-bar-bg', progressBarBg)
     this.load.image('progress-bar-line', progressBarLine)
+    this.load.image('score-bar', scoreBar)
+    this.load.image('ball-bar', ball)
   }
 
   public create(): void {
     this.scene.stop()
     // this.scene.start('MainMenu')
-    this.scene.start('Hud')
     this.scene.start('Game')
+    this.scene.start('Hud')
   }
 }

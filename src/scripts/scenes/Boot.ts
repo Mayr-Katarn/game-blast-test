@@ -39,7 +39,7 @@ export default class Boot extends Phaser.Scene {
   private loadFonts(): void {
     let scene: Boot = this;
     Webfont.load({
-      custom: { families: [ 'Space', 'Space-i' ] },
+      custom: { families: [ 'Marvin' ] },
       active() { scene.fontsReady = true }
     })
   }

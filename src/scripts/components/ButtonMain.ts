@@ -42,7 +42,7 @@ export default class ButtonMain {
 
     this.btn = this.scene.add.sprite(this.x, this.y, sprite).setScale(2).setDepth(5).setAlpha(0).setInteractive()
     this.btnShadow = this.scene.add.sprite(this.btn.x, this.btn.y + 5, sprite).setTint(0x000000).setDepth(4).setScale(1.97).setAlpha(0)
-    this.btnText = this.scene.add.text(this.x, this.y, this.text, { font: '58px Space-i', color: '#ffffff' }).setDepth(this.btn.depth + 1).setOrigin(0.5, 0.55).setAlpha(0)
+    this.btnText = this.scene.add.text(this.x, this.y, this.text, { font: '58px Marvin', color: '#ffffff' }).setDepth(this.btn.depth + 1).setOrigin(0.5, 0.55).setAlpha(0)
 
 
     this.elements = [

@@ -35,7 +35,7 @@ export default class Game extends Phaser.Scene {
   // public matchBalls: Tile[]
   // public checkingMatch: boolean
 
-  public scoreSum: number
+  // public scoreSum: number
   public score: number
   public scoreTarget: number
 
@@ -61,13 +61,15 @@ export default class Game extends Phaser.Scene {
     this.fieldWidth = this.cols * this.cellWidth
 
     this.fieldOriginX = this.cameras.main.centerX - this.fieldWidth / 2
-    this.fieldOriginY = this.cameras.main.centerY + this.fieldHeight / 2
+    this.fieldOriginY = this.cameras.main.centerY + 60 + this.fieldHeight / 2
 
     this.cells = []
     this.tiles = []
     this.chain = []
     // this.activeBalls = []
     // this.checkingMatch = false
+
+    this.score = 0
     this.debug = false
   }
 
@@ -75,7 +77,7 @@ export default class Game extends Phaser.Scene {
   public create(): void {
     this.cameras.main.setBackgroundColor('#b4feff')
 
-    this.field = this.add.sprite(this.camera.centerX + 4, this.camera.centerY, 'field').setScale(0.92, 0.97)
+    this.field = this.add.sprite(this.camera.centerX + 4, this.camera.centerY + 60, 'field').setScale(0.92, 0.97)
     const borders: Phaser.GameObjects.Sprite = this.add.sprite(this.field.x, this.field.y, 'field').setScale(0.87, 0.9).setVisible(false)
     this.mask = borders.createBitmapMask();
 
@@ -107,7 +109,7 @@ export default class Game extends Phaser.Scene {
   private createTiles(): void {
     this.cells.forEach(cell => {
       this.tiles.push(new Tile(this, cell.x, cell.y - this.field.getBounds().height + 40, cell.col, cell.row, this.colors[Phaser.Math.Between(0, this.colors.length - 1)]))
-      if (this.debug) this.add.text(cell.x + this.cellWidth / 2 + 4, cell.y - this.cellHeight / 2 + 6, cell.id, { font: '24px Space', color: 'black' }).setOrigin(0.5).setDepth(100)
+      if (this.debug) this.add.text(cell.x + this.cellWidth / 2 + 4, cell.y - this.cellHeight / 2 + 6, cell.id, { font: '24px Marvin', color: 'black' }).setOrigin(0.5).setDepth(100)
     })
   }
 
