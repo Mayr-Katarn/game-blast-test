@@ -32,16 +32,20 @@ export default class Tile extends Phaser.GameObjects.Sprite {
 
   private init(): void {
     this.scene.add.existing(this).setDepth(this.row).setOrigin(0, 1).setMask(this.scene.mask).setInteractive().setClick().moveToCell()
+    // this.scene.add.existing(this).setDepth(this.row).setOrigin(0, 1).setInteractive().setClick().moveToCell()
   }
 
   public moveToCell(): this {
     const cell = this.scene.findCellByID(this.id)
+    // const distance = Phaser.Math.Distance.Between(this.x, this.y, cell.x, cell.y)
+    let duration = !this.scene.gameStarted ? 900 : 350
     if (cell.empty) cell.empty = false
     this.moveAni = this.scene.tweens.add({
       targets: this,
       y: cell.y,
-      duration: 1000,
-      ease: 'Cubic.easeIn'
+      duration,
+      // ease: 'Cubic.easeIn'
+      ease: 'Quad.easeIn'
     })
     return this
   }
@@ -77,13 +81,21 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     else this.scene.blowChain()
   }
 
-  public setNewCellID(id: string = ''): this {
+  public setNewCell(cell: Icell): this {
     this.scene.findCellByID(this.id).empty = true
-    this.id = id
+    cell.empty = false
+    this.col = cell.col
+    this.row = cell.row
+    this.id = cell.id
+    this.setDepth(this.row)
     return this
   }
 
   public blow(): void {
-    this.setNewCellID().destroy()
+    this.scene.findCellByID(this.id).empty = true
+    this.col = null
+    this.row = null
+    this.id = ''
+    this.destroy()
   }
 }

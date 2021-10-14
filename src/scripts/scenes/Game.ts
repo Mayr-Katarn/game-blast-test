@@ -14,10 +14,10 @@ export default class Game extends Phaser.Scene {
   public cells: Icell[]
   public tiles: Tile[]
 
+  public gameStarted: boolean
   public gameOver: boolean
   public win: boolean
   public colors: string[]
-  private filling: boolean
   private debug: boolean
 
   private rows: number
@@ -50,6 +50,7 @@ export default class Game extends Phaser.Scene {
     this.camera = this.cameras.main
     this.colors = ['red', 'blue', 'green', 'yellow', 'pink']
 
+    this.gameStarted = false
     this.gameOver = false
     this.win = false
     this.rows = 8
@@ -67,10 +68,8 @@ export default class Game extends Phaser.Scene {
     this.chain = []
     // this.activeBalls = []
     // this.checkingMatch = false
-    this.filling = false
-    this.debug = true
+    this.debug = false
   }
-
 
 
   public create(): void {
@@ -82,8 +81,12 @@ export default class Game extends Phaser.Scene {
 
     this.createCells()
     this.createTiles()
+    this.gameStarted = true
 
-    this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerBall.id) })
+    if (this.debug) {
+      this.input.keyboard.addKey('W').on('up', (): void => { this.fillCells() })
+      this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerBall.id) })
+    }
   }
 
   private createCells(): void {
@@ -103,7 +106,7 @@ export default class Game extends Phaser.Scene {
 
   private createTiles(): void {
     this.cells.forEach(cell => {
-      this.tiles.push(new Tile(this, cell.x, cell.y - this.field.getBounds().height + 40, cell.col, cell.row, this.colors[Phaser.Math.Between(0, 4)]))
+      this.tiles.push(new Tile(this, cell.x, cell.y - this.field.getBounds().height + 40, cell.col, cell.row, this.colors[Phaser.Math.Between(0, this.colors.length - 1)]))
       if (this.debug) this.add.text(cell.x + this.cellWidth / 2 + 4, cell.y - this.cellHeight / 2 + 6, cell.id, { font: '24px Space', color: 'black' }).setOrigin(0.5).setDepth(100)
     })
   }
@@ -138,6 +141,7 @@ export default class Game extends Phaser.Scene {
       el.color === tile.color
     )
   }
+  // private isHave
 
   public blowChain(): void {
     console.log('Game ~ blowChain ~ this.chain', this.chain.map(tile => tile.id))
@@ -148,27 +152,32 @@ export default class Game extends Phaser.Scene {
 
   // Заполение пустых ячеек
   public fillCells(): void {
-    this.filling = true
     const emptyCells = this.cells.filter(cell => cell.empty).sort((a, b) => a.row - b.row)
-    console.log('Game ~ fillCells ~ emptyCells', emptyCells.map(cell => cell.id))
+    // console.log('1 ~ fillCells ~ emptyCells', emptyCells.map(cell => cell.id), emptyCells.every((cell1, i) => cell1?.id === this.lastEmptyCells[i]?.id))
+    let emptyTopCounter = 0
 
     emptyCells.forEach(cell => {
       let tile: Tile
       for (let row = cell.row + 1; row < this.rows; row++) {
         tile = this.findTileByID(`${cell.col}-${row}`)
         if (tile) {
-          tile.setNewCellID(cell.id).moveToCell()
+          tile.setNewCell(cell).moveToCell()
           break
         }
       }
-      if (!tile) {
-        this.tiles.push(new Tile(this, cell.x, this.field.getTopCenter().y, cell.col, cell.row, this.colors[Phaser.Math.Between(0, 4)]))
-      }
+      if (!tile) { emptyTopCounter++ }
     })
 
-    // if (this.cells.some(cell => cell.empty)) this.fillCells()
-
-    this.filling = false
+    if (emptyCells.length === emptyTopCounter) {
+      const created = []
+      emptyCells.forEach(cell => {
+        this.tiles.push(new Tile(this, cell.x, this.field.getTopCenter().y - (this.cellHeight * created.filter(el => el.col === cell.col).length), cell.col, cell.row, this.colors[Phaser.Math.Between(0, this.colors.length - 1)]))
+        created.push(cell)
+      })
+    }
+    
+    // console.log('2 ~ fillCells ~ emptyCells', emptyCells.length === emptyTopCounter)
+    if (this.cells.some(cell => cell.empty)) this.fillCells()
   }
   
 
