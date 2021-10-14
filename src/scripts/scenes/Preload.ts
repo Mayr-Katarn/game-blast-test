@@ -5,6 +5,10 @@ const yellow: any = require("./../../assets/images/tiles/yellow.png");
 const pink: any = require("./../../assets/images/tiles/pink.png");
 
 const field: any = require("./../../assets/images/field.png");
+const lineSide: any = require("./../../assets/images/line-side.png");
+const lineMid: any = require("./../../assets/images/line-mid.png");
+const progressBarBg: any = require("./../../assets/images/progress-bar-bg.png");
+const progressBarLine: any = require("./../../assets/images/progress-bar-line.png");
 
 
 export default class Preload extends Phaser.Scene {
@@ -38,15 +42,18 @@ export default class Preload extends Phaser.Scene {
     this.load.image('green', green)
     this.load.image('yellow', yellow)
     this.load.image('pink', pink)
+    this.load.image('line-side', lineSide)
+    this.load.image('line-mid', lineMid)
 
     this.load.image('field', field)
+    this.load.image('progress-bar-bg', progressBarBg)
+    this.load.image('progress-bar-line', progressBarLine)
   }
 
   public create(): void {
     this.scene.stop()
     // this.scene.start('MainMenu')
-    // this.scene.start('Hud')
+    this.scene.start('Hud')
     this.scene.start('Game')
   }
-
 }
