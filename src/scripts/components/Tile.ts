@@ -97,6 +97,25 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     this.col = null
     this.row = null
     this.id = ''
-    this.destroy()
+    this.setVisible(false)
+    this.blowAnimation()
+  }
+
+  private blowAnimation(): void {
+    const tile: Phaser.GameObjects.Sprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, this.color).setDepth(this.row + 20)
+    const tileTint: Phaser.GameObjects.Sprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'tile-tint').setDepth(this.row + 21).setTint(0xffffff).setAlpha(0)
+    this.scene.tweens.add({
+      targets: [ tile, tileTint ],
+      scale: 1.15,
+      alpha: { value: 1, duration: 70, delay: 50 },
+      duration: 120,
+      ease: 'Quad.easeIn',
+      onComplete: (): void => {
+        tile.destroy()
+        console.log('Tile ~ blowAnimation ~ tileTint', tileTint.alpha)
+        tileTint.destroy()
+        this.destroy()
+      }
+    })
   }
 }
