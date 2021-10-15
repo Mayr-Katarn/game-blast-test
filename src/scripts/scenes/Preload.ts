@@ -3,7 +3,7 @@ const blue: any = require("./../../assets/images/tiles/blue.png");
 const green: any = require("./../../assets/images/tiles/green.png");
 const yellow: any = require("./../../assets/images/tiles/yellow.png");
 const pink: any = require("./../../assets/images/tiles/pink.png");
-const bomb: any = require("./../../assets/images/tiles/bomb.png");
+const superTile: any = require("./../../assets/images/tiles/super.png");
 const tileTint: any = require("./../../assets/images/tiles/tile-tint.png");
 
 const field: any = require("./../../assets/images/field.png");
@@ -50,7 +50,7 @@ export default class Preload extends Phaser.Scene {
     this.load.image('green', green)
     this.load.image('yellow', yellow)
     this.load.image('pink', pink)
-    this.load.image('bomb', bomb)
+    this.load.image('super', superTile)
     this.load.image('tile-tint', tileTint)
     this.load.image('line-side', lineSide)
     this.load.image('line-mid', lineMid)

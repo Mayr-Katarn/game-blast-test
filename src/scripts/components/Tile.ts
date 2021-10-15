@@ -54,25 +54,60 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     this.on('pointerup', (): void => {
       if (!this.scene.isTilesMoving() && !this.scene.gameIsOver) {
         this.scene.clickPosition = { x: this.getCenter().x, y: this.getCenter().y }
-        if (this.scene.bombBoosterIsActive) {
-          this.scene.chain = this.scene.tilesForBlow(this)
-          this.scene.bombToggle()
-          this.scene.blowChain()
-        } else {
-          const sameColorNearbyTiles = this.scene.nearbyTilesSameColor(this)
-          if (sameColorNearbyTiles.length > 0) {
-            this.scene.chain = sameColorNearbyTiles
-            this.scene.chain.push(this)
-            this.pushChain(sameColorNearbyTiles)
-          }
-        }
+        this.scene.clickedTile = this
+        if (this.scene.bombBoosterIsActive) this.activateBombBooster()
+        else if (this.color === 'super') this.activateSuperTile()
+        else this.activateChainBlow()
       }
     })
 
     this.on('pointerover', (): void => {
-      this.scene.pointerBall = this
+      this.scene.pointerTile = this
     })
     return this
+  }
+
+  private activateBombBooster(changeToggle: boolean = true): void {
+    this.scene.chain = this.scene.tilesForBlow(this)
+    this.scene.boosterWasUsed = true
+    if (changeToggle) this.scene.bombToggle()
+    this.scene.blowChain()
+  }
+
+  private activateSuperTile(): void {
+    this.scene.boosterWasUsed = true
+    const type = Phaser.Math.Between(0, 3)
+    switch (type) {
+      case 0: {
+        this.scene.chain = this.scene.tiles.filter(tile => tile.col === this.col)
+        this.scene.blowChain()
+        break
+      }
+      case 1: {
+        this.scene.chain = this.scene.tiles.filter(tile => tile.row === this.row)
+        this.scene.blowChain()
+        break
+      }
+      case 2: {
+        this.activateBombBooster(false)
+        break
+      }
+      case 3: {
+        this.scene.chain = this.scene.tiles
+        this.scene.blowChain()
+        break
+      }
+    }
+  }
+
+  private activateChainBlow(): void {
+    const sameColorNearbyTiles = this.scene.nearbyTilesSameColor(this)
+    if (sameColorNearbyTiles.length > 0) {
+      this.scene.boosterWasUsed = false
+      this.scene.chain = sameColorNearbyTiles
+      this.scene.chain.push(this)
+      this.pushChain(sameColorNearbyTiles)
+    }
   }
 
   private pushChain(arr: Tile[]): void {

@@ -1,6 +1,6 @@
 const config: Iconfig = {
   turns: 30,
-  targetScore: 5000
+  targetScore: 20000
 }
 
 const colors: Icolors = {

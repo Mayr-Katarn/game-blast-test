@@ -33,12 +33,15 @@ export default class Game extends Phaser.Scene {
   private fieldOriginY: number
 
   public chain: Tile[]
-  public pointerBall: Tile
+  public pointerTile: Tile
+  public clickedTile: Tile
   public clickPosition: { x: number, y: number }
   public bombBoosterIsActive: boolean
+  public boosterWasUsed: boolean
   private fieldIsChecked: boolean
   private recreationTry: number
   private bombRadius: number
+  private creationSuperTileCondition: number
 
   public score: number
   public blowScore: number
@@ -76,14 +79,14 @@ export default class Game extends Phaser.Scene {
     this.fieldIsChecked = false
     this.recreationTry = 0
     this.bombRadius = 2
-    // this.activeBalls = []
-    // this.checkingMatch = false
+    this.boosterWasUsed = false
+    this.creationSuperTileCondition = 5
 
     this.turns = config.turns
     this.scoreTarget = config.targetScore
     this.blowScore = 0
     this.score = 0
-    this.debug = true
+    this.debug = false
   }
 
 
@@ -100,10 +103,10 @@ export default class Game extends Phaser.Scene {
 
     if (this.debug) {
       this.input.keyboard.addKey('F').on('up', (): void => { this.fillCells() })
-      this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerBall.id) })
+      this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerTile.id) })
+      this.input.keyboard.addKey('W').on('up', (): void => { this.scene.launch('Modal', { type: 'gameOver', info: { win: false, reason: this.lang.noMatches } }) })
+      this.input.keyboard.addKey('R').on('up', (): void => { this.recreateField() })
     }
-    this.input.keyboard.addKey('W').on('up', (): void => { this.scene.launch('Modal', { type: 'gameOver', info: { win: false, reason: this.lang.noMatches } }) })
-    this.input.keyboard.addKey('R').on('up', (): void => { this.recreateField() })
   }
 
   private createCells(): void {
@@ -181,7 +184,10 @@ export default class Game extends Phaser.Scene {
   public blowChain(): void {
     console.log('Game ~ blowChain ~ this.chain', this.chain.map(tile => tile.id))
     this.calcScore(this.chain.length)
-    this.spendTurn()
+    if (!this.boosterWasUsed) {
+      this.spendTurn()
+      if (this.chain.length >= this.creationSuperTileCondition) this.createSuperTile()
+    }
     this.chain.forEach(tile => tile.blow())
     this.tiles = this.tiles.filter(tile => tile.id)
     this.fillCells()
@@ -247,6 +253,11 @@ export default class Game extends Phaser.Scene {
         this.tiles.forEach(tile => tile.stopPulse())
       }
     }
+  }
+
+  private createSuperTile(): void {
+    this.chain = this.chain.filter(tile => tile.id !== this.clickedTile.id)
+    this.clickedTile.setColor('super')
   }
 
   private calcScore(tiles: number): void {
