@@ -53,6 +53,7 @@ export default class Tile extends Phaser.GameObjects.Sprite {
   private setClick(): this {
     this.on('pointerup', (): void => {
       if (!this.scene.isTilesMoving()) {
+        this.scene.clickPosition = { x: this.getCenter().x, y: this.getCenter().y }
         const sameColorNearbyTiles = this.scene.sameColorNearbyTiles(this)
         if (sameColorNearbyTiles.length > 0) {
           this.scene.chain = sameColorNearbyTiles

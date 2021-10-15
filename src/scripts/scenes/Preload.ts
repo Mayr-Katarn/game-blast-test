@@ -8,6 +8,7 @@ const field: any = require("./../../assets/images/field.png");
 
 const lineSide: any = require("./../../assets/images/hud/line-side.png");
 const lineMid: any = require("./../../assets/images/hud/line-mid.png");
+const lineMask: any = require("./../../assets/images/hud/line-mask.png");
 const progressBarBg: any = require("./../../assets/images/hud/progress-bar-bg.png");
 const progressBarLine: any = require("./../../assets/images/hud/progress-bar-line.png");
 const scoreBar: any = require("./../../assets/images/hud/score-bar.png");
@@ -47,6 +48,7 @@ export default class Preload extends Phaser.Scene {
     this.load.image('pink', pink)
     this.load.image('line-side', lineSide)
     this.load.image('line-mid', lineMid)
+    this.load.image('line-mask', lineMask)
 
     this.load.image('field', field)
     this.load.image('progress-bar-bg', progressBarBg)

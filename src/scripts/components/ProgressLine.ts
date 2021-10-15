@@ -6,6 +6,7 @@ export default class ProgressLine extends Phaser.GameObjects.Container {
   public y: number
 
   private maxLineWidth: number
+  public mask: Phaser.Display.Masks.BitmapMask
   private lineLeft: Phaser.GameObjects.Sprite
   private lineMid: Phaser.GameObjects.TileSprite
   private lineRight: Phaser.GameObjects.Sprite
@@ -20,19 +21,20 @@ export default class ProgressLine extends Phaser.GameObjects.Container {
   }
 
   private init(): void {
-    this.scene.add.existing(this)
-    this.maxLineWidth = 429
-    this.lineLeft = this.scene.add.sprite(0, 0, 'line-side').setOrigin(0, 0.5)
-    this.lineMid = this.scene.add.tileSprite(this.lineLeft.getRightCenter().x, this.lineLeft.getRightCenter().y, 5, this.lineLeft.height,'line-mid').setOrigin(0, 0.5)
-    this.lineRight = this.scene.add.sprite(this.lineMid.getRightCenter().x, this.lineMid.getRightCenter().y, 'line-side').setOrigin(0, 0.5).setFlipX(true)
+    this.mask = this.scene.add.sprite(this.x, this.y, 'line-mask').setOrigin(0, 0.5).setVisible(false).createBitmapMask()
+    this.scene.add.existing(this).setMask(this.mask)
+    this.maxLineWidth = 444
+    this.lineRight = this.scene.add.sprite(0, 0, 'line-side').setOrigin(0, 0.5).setFlipX(true)
+    this.lineRight.setX(this.lineRight.x - this.lineRight.getBounds().width)
+    this.lineMid = this.scene.add.tileSprite(0, 0, 1, this.lineRight.height,'line-mid').setOrigin(0, 0.5)
     this.add([
-      this.lineLeft,
       this.lineMid,
       this.lineRight,
     ])
   }
 
   public setProgress(percent: number): this {
+    if (percent > 100) percent = 100
     const width = this.maxLineWidth / 100 * percent
     this.setWidthAni = this.scene.add.tween({
       targets: this.lineMid,
@@ -41,6 +43,14 @@ export default class ProgressLine extends Phaser.GameObjects.Container {
       duration: 1000,
       ease: 'Power3'
     })
+    return this
+  }
+
+  public setFullScale(x: number, y?: number): this {
+    y = y ? y : x
+    this.setScale(x, y).clearMask()
+    this.mask = this.scene.add.sprite(this.x, this.y, 'line-mask').setTint(0x000000).setOrigin(0, 0.5).setScale(0.9).setVisible(false).createBitmapMask()
+    this.setMask(this.mask)
     return this
   }
 }

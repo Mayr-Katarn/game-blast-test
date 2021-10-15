@@ -1,6 +1,8 @@
 import langs from '../langs'
 import Tile from '../components/Tile'
 import Hud from './Hud';
+import config from '../config';
+import FlyAwayText from '../components/FlyAwayText';
 
 
 export default class Game extends Phaser.Scene {
@@ -18,6 +20,7 @@ export default class Game extends Phaser.Scene {
   public gameOver: boolean
   public win: boolean
   public colors: string[]
+  public turns: number
   private debug: boolean
 
   private rows: number
@@ -31,6 +34,7 @@ export default class Game extends Phaser.Scene {
 
   public chain: Tile[]
   public pointerBall: Tile
+  public clickPosition: { x: number, y: number }
   // public activeBalls: Tile[]
   // public matchBalls: Tile[]
   // public checkingMatch: boolean
@@ -66,9 +70,12 @@ export default class Game extends Phaser.Scene {
     this.cells = []
     this.tiles = []
     this.chain = []
+    this.clickPosition = { x: 0, y: 0 }
     // this.activeBalls = []
     // this.checkingMatch = false
 
+    this.turns = config.turns
+    this.scoreTarget = config.targetScore
     this.score = 0
     this.debug = false
   }
@@ -147,6 +154,8 @@ export default class Game extends Phaser.Scene {
 
   public blowChain(): void {
     console.log('Game ~ blowChain ~ this.chain', this.chain.map(tile => tile.id))
+    this.calcScore(this.chain.length)
+    this.spendTurn()
     this.chain.forEach(tile => tile.blow())
     this.tiles = this.tiles.filter(tile => tile.id)
     this.fillCells()
@@ -181,7 +190,33 @@ export default class Game extends Phaser.Scene {
     // console.log('2 ~ fillCells ~ emptyCells', emptyCells.length === emptyTopCounter)
     if (this.cells.some(cell => cell.empty)) this.fillCells()
   }
+
+  private calcScore(tiles: number): void {
+    const defaultIncriment = 100
+    const result = tiles * defaultIncriment
+    this.score += result
+    const { x, y } = this.clickPosition
+    new FlyAwayText(this, x, y, result)
+    this.hud.updateScore()
+    if (this.score >= this.scoreTarget) {
+      this.win = true
+      this.gameResult()
+    }
+  }
+
+  private spendTurn(): void {
+    this.turns--
+    this.hud.updateTurns()
+    if (this.turns <= 0 && !this.gameOver) {
+      if (this.score >= this.scoreTarget) this.win = true
+      this.gameResult()
+    }
+  }
   
+  private gameResult(): void {
+    this.gameOver = true
+    console.log('game over | win: ', this.win);
+  }
 
   public update(): void {
     // console.log();
