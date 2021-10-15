@@ -1,3 +1,5 @@
+import ButtonMain from '../components/Buttons/ButtonMain'
+import { colors } from '../config'
 import langs from '../langs'
 
 export default class Modal extends Phaser.Scene {
@@ -10,17 +12,13 @@ export default class Modal extends Phaser.Scene {
   public info?: any
 
   public globalBg: Phaser.GameObjects.TileSprite
-  public bg: any
-  public topSide: any
-  public botSide: any
+  public bg: Phaser.GameObjects.Sprite
 
   private x: number
   private y: number
   private bgAniDuration: number
 
-  private mid: Phaser.GameObjects.Sprite
-  private top: Phaser.GameObjects.Sprite
-  private bot: Phaser.GameObjects.Sprite
+  private yOffset: number
 
 
   public init(data: { type: string, info?: any }): void {
@@ -31,6 +29,7 @@ export default class Modal extends Phaser.Scene {
     this.x = this.cameras.main.centerX
     this.y = this.cameras.main.centerY
     this.bgAniDuration = 300
+    this.yOffset = 40
   }
 
 
@@ -43,36 +42,37 @@ export default class Modal extends Phaser.Scene {
     })
 
     switch (this.type) {
-      case 'win': {
-        this.win()
-        break
-      }
-
-      case 'lose': {
-        this.lose()
+      case 'gameOver': {
+        this.gameOverWindow()
         break
       }
     }
   }
 
 
-  private win(): void {
-    this.mid = this.add.sprite(this.x, this.y + 40, 'mid').setSize(400, 600).setAlpha(0)
-    this.top = this.add.sprite(this.mid.getTopCenter().x, this.mid.getTopCenter().y, 'side').setOrigin(0.5, 1).setAlpha(0).setTint(0xfefef4)
-    this.bot = this.add.sprite(this.mid.getBottomCenter().x, this.mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setAlpha(0).setTint(0xf8ffbe).setFlipY(true)
-    const title: Phaser.GameObjects.Text = this.add.text(this.top.getTopCenter().x, this.top.getTopCenter().y + 4, this.lang.stageClear, {
-      font: '60px Marvin', color: 'white'
+  private gameOverWindow(): void {
+    const titleText = this.info ? this.lang.win : this.lang.lose
+    const subtitleText = this.info ? this.lang.targetReach : this.lang.outOfTurns
+    const color = this.info ? colors.green.str : colors.red.str
+
+    this.bg = this.add.sprite(this.x, this.y + this.yOffset, 'progress-bar-bg').setScale(0.7, 1.3).setAlpha(0)
+
+    const title: Phaser.GameObjects.Text = this.add.text(this.bg.getTopCenter().x, this.bg.getTopCenter().y + 16, titleText, {
+      font: '40px Marvin', color
     }).setOrigin(0.5, 0).setStroke('#000000', 3).setAlpha(0)
-    this.fadeOut([ this.top, this.mid, this.bot, title ])
 
-  }
+    const subtitle: Phaser.GameObjects.Text = this.add.text(title.getBottomCenter().x, title.getBottomCenter().y + 4, subtitleText, {
+      font: '20px Marvin', color: 'white'
+    }).setOrigin(0.5, 0).setStroke('#000000', 3).setAlpha(0)
 
-  private lose(): void {
-    this.mid = this.add.sprite(this.x, this.y + 40, 'mid').setSize(400, 500).setAlpha(0)
-    this.top = this.add.sprite(this.mid.getTopCenter().x, this.mid.getTopCenter().y, 'side').setOrigin(0.5, 1).setAlpha(0).setTint(0xfefef4)
-    this.bot = this.add.sprite(this.mid.getBottomCenter().x, this.mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setAlpha(0).setTint(0xf8ffbe).setFlipY(true)
-    this.fadeOut([ this.top, this.mid, this.bot ])
+    const btn = new ButtonMain(
+      this,this.x, subtitle.getBottomCenter().y + 50,
+      (): void => { this.close() },
+      this.lang.continue
+    )
 
+    const targets = btn.elements.concat([this.bg, title, subtitle])
+    this.fadeOut(targets)
   }
 
 
@@ -80,7 +80,7 @@ export default class Modal extends Phaser.Scene {
     this.tweens.add({
       targets,
       ease: 'Power2',
-      y: '-=40',
+      y: `-=${this.yOffset}`,
       alpha: 1,
       duration: 400,
       delay: this.bgAniDuration
@@ -88,7 +88,6 @@ export default class Modal extends Phaser.Scene {
   }
 
 
-  // Анимация закрытия
   private close(): void {
     this.scene.stop()
   }

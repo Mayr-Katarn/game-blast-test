@@ -19,8 +19,10 @@ export default class Hud extends Phaser.Scene {
   private scoreBarBg: Phaser.GameObjects.Sprite
   private scoreBarBall: Phaser.GameObjects.Sprite
   private turnsText: Phaser.GameObjects.Text
+  private turnsTextAni: Phaser.Tweens.Tween
   private scoreTitle: Phaser.GameObjects.Text
   private scoreText: Phaser.GameObjects.Text
+  private scoreTextAni: Phaser.Time.TimerEvent
 
   public init(): void {
     this.lang = langs.ru
@@ -51,11 +53,30 @@ export default class Hud extends Phaser.Scene {
 
   public updateTurns(): void {
     this.turnsText.setText(`${this.gameScene.turns}`)
+    this.turnsTextAni = this.tweens.add({
+      targets: this.turnsText,
+      scale: 1.3,
+      yoyo: true,
+      duration: 50
+    })
   }
 
   public updateScore(): void {
     const percent = this.gameScene.score / (this.gameScene.scoreTarget / 100)
+    const currentScore = +this.scoreText.text
+    const scores: number[] = []
+
     this.progressLine.setProgress(Math.round(percent))
-    this.scoreText.setText(`${this.gameScene.score}`)
+    for (let i = 1; i <= 4; i++) scores.push(Math.round(currentScore + this.gameScene.blowScore * (0.2 * i)))
+    scores.push(this.gameScene.score)
+
+    this.scoreTextAni?.remove()
+    for (let i = 0; i < scores.length; i++) {
+      this.scoreTextAni = this.time.addEvent({
+        delay: 50 * i,
+        callback: (): void => {this.scoreText.setText(`${scores[i]}`)},
+        loop: false
+      })
+    }
   }
 }

@@ -1,5 +1,5 @@
 import langs from '../langs'
-import ButtonMain from '../components/ButtonMain'
+import ButtonMain from '../components/Buttons/ButtonMain'
 
 export default class MainMenu extends Phaser.Scene {
   constructor() {

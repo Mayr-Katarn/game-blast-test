@@ -1,7 +1,7 @@
 import langs from '../langs'
 import Tile from '../components/Tile'
 import Hud from './Hud';
-import config from '../config';
+import { config } from '../config';
 import FlyAwayText from '../components/FlyAwayText';
 
 
@@ -39,8 +39,8 @@ export default class Game extends Phaser.Scene {
   // public matchBalls: Tile[]
   // public checkingMatch: boolean
 
-  // public scoreSum: number
   public score: number
+  public blowScore: number
   public scoreTarget: number
 
   public mask: Phaser.Display.Masks.BitmapMask
@@ -76,6 +76,7 @@ export default class Game extends Phaser.Scene {
 
     this.turns = config.turns
     this.scoreTarget = config.targetScore
+    this.blowScore = 0
     this.score = 0
     this.debug = false
   }
@@ -96,6 +97,7 @@ export default class Game extends Phaser.Scene {
       this.input.keyboard.addKey('W').on('up', (): void => { this.fillCells() })
       this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerBall.id) })
     }
+    // this.input.keyboard.addKey('W').on('up', (): void => { this.scene.launch('Modal', { type: 'gameOver', info: false }) })
   }
 
   private createCells(): void {
@@ -159,6 +161,7 @@ export default class Game extends Phaser.Scene {
     this.chain.forEach(tile => tile.blow())
     this.tiles = this.tiles.filter(tile => tile.id)
     this.fillCells()
+    this.checkGameOver()
   }
 
   // Заполение пустых ячеек
@@ -193,22 +196,23 @@ export default class Game extends Phaser.Scene {
 
   private calcScore(tiles: number): void {
     const defaultIncriment = 100
-    const result = tiles * defaultIncriment
-    this.score += result
+    this.blowScore = tiles * defaultIncriment
+    this.score += this.blowScore
     const { x, y } = this.clickPosition
-    new FlyAwayText(this, x, y, result)
+    new FlyAwayText(this, x, y)
     this.hud.updateScore()
-    if (this.score >= this.scoreTarget) {
-      this.win = true
-      this.gameResult()
-    }
   }
 
   private spendTurn(): void {
     this.turns--
     this.hud.updateTurns()
-    if (this.turns <= 0 && !this.gameOver) {
-      if (this.score >= this.scoreTarget) this.win = true
+  }
+
+  private checkGameOver(): void {
+    if (this.score >= this.scoreTarget) {
+      this.win = true
+      this.gameResult()
+    } else if (this.turns <= 0) {
       this.gameResult()
     }
   }
@@ -216,29 +220,6 @@ export default class Game extends Phaser.Scene {
   private gameResult(): void {
     this.gameOver = true
     console.log('game over | win: ', this.win);
-  }
-
-  public update(): void {
-    // console.log();
-
-    // Находим пустые ячейки
-    // this.emptyCells = this.gameFieldCells.filter((cell: IgameFieldCell) => cell.empty === true)
-
-    // ДИСТАНЦИЯ // Проверка на заполненность поля
-    // this.fieldIsFill = this.gameFieldBalls.every(ball => {
-    //   let cell: IgameFieldCell = this.gameFieldCells.find(cell => cell.id === ball.id)
-    //   if (cell !== undefined) { return Phaser.Math.Distance.Between(ball.ball.x, ball.ball.y, cell.cell.x, cell.cell.y) < 13 }
-    // }) && !this.resettingBalls
-
-    // Прозрачность шаров при движении
-    // if (!this.fieldIsFill) this.gameFieldBalls.forEach(ball => { if (ball.ball !== undefined) ball.ball.setAlpha(0.7) })
-    // else this.gameFieldBalls.forEach(ball => ball.ball.setAlpha(1))
-
-    // Заполнение пустых ячеек
-    // if (this.emptyCells.length !== 0 && !this.filling) this.fillCells()
-    // else if (this.fieldIsFill && !this.checkingMatch) {
-    //   this.checkField()
-    //   this.checkMatch()
-    // }
+    this.scene.launch('Modal', { type: 'gameOver', info: this.win })
   }
 }
