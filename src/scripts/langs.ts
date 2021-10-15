@@ -7,6 +7,7 @@ export default {
     targetReach: 'цель достигнута',
     lose: 'поражение',
     outOfTurns: 'закончились ходы',
+    noMatches: 'нет совпадений',
     continue: 'продолжить',
   },
 }

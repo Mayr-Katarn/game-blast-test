@@ -51,9 +51,8 @@ export default class Modal extends Phaser.Scene {
 
 
   private gameOverWindow(): void {
-    const titleText = this.info ? this.lang.win : this.lang.lose
-    const subtitleText = this.info ? this.lang.targetReach : this.lang.outOfTurns
-    const color = this.info ? colors.green.str : colors.red.str
+    const titleText = this.info.win ? this.lang.win : this.lang.lose
+    const color = this.info.win ? colors.green.str : colors.red.str
 
     this.bg = this.add.sprite(this.x, this.y + this.yOffset, 'progress-bar-bg').setScale(0.7, 1.3).setAlpha(0)
 
@@ -61,7 +60,7 @@ export default class Modal extends Phaser.Scene {
       font: '40px Marvin', color
     }).setOrigin(0.5, 0).setStroke('#000000', 3).setAlpha(0)
 
-    const subtitle: Phaser.GameObjects.Text = this.add.text(title.getBottomCenter().x, title.getBottomCenter().y + 4, subtitleText, {
+    const subtitle: Phaser.GameObjects.Text = this.add.text(title.getBottomCenter().x, title.getBottomCenter().y + 4, this.info.reason, {
       font: '20px Marvin', color: 'white'
     }).setOrigin(0.5, 0).setStroke('#000000', 3).setAlpha(0)
 

@@ -16,8 +16,8 @@ export default class Game extends Phaser.Scene {
   public cells: Icell[]
   public tiles: Tile[]
 
-  public gameStarted: boolean
-  public gameOver: boolean
+  public gameIsStarted: boolean
+  public gameIsOver: boolean
   public win: boolean
   public colors: string[]
   public turns: number
@@ -35,6 +35,8 @@ export default class Game extends Phaser.Scene {
   public chain: Tile[]
   public pointerBall: Tile
   public clickPosition: { x: number, y: number }
+  private fieldIsChecked: boolean
+  private recreationTry: number
   // public activeBalls: Tile[]
   // public matchBalls: Tile[]
   // public checkingMatch: boolean
@@ -54,8 +56,8 @@ export default class Game extends Phaser.Scene {
     this.camera = this.cameras.main
     this.colors = ['red', 'blue', 'green', 'yellow', 'pink']
 
-    this.gameStarted = false
-    this.gameOver = false
+    this.gameIsStarted = false
+    this.gameIsOver = false
     this.win = false
     this.rows = 8
     this.cols = 8
@@ -71,6 +73,8 @@ export default class Game extends Phaser.Scene {
     this.tiles = []
     this.chain = []
     this.clickPosition = { x: 0, y: 0 }
+    this.fieldIsChecked = false
+    this.recreationTry = 0
     // this.activeBalls = []
     // this.checkingMatch = false
 
@@ -91,13 +95,14 @@ export default class Game extends Phaser.Scene {
 
     this.createCells()
     this.createTiles()
-    this.gameStarted = true
+    this.gameIsStarted = true
 
     if (this.debug) {
-      this.input.keyboard.addKey('W').on('up', (): void => { this.fillCells() })
+      this.input.keyboard.addKey('F').on('up', (): void => { this.fillCells() })
       this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerBall.id) })
     }
-    // this.input.keyboard.addKey('W').on('up', (): void => { this.scene.launch('Modal', { type: 'gameOver', info: false }) })
+    this.input.keyboard.addKey('W').on('up', (): void => { this.scene.launch('Modal', { type: 'gameOver', info: { win: false, reason: this.lang.noMatches } }) })
+    this.input.keyboard.addKey('R').on('up', (): void => { this.recreateField() })
   }
 
   private createCells(): void {
@@ -162,6 +167,8 @@ export default class Game extends Phaser.Scene {
     this.tiles = this.tiles.filter(tile => tile.id)
     this.fillCells()
     this.checkGameOver()
+    this.recreationTry = 0
+    this.fieldIsChecked = false
   }
 
   // Заполение пустых ячеек
@@ -194,6 +201,21 @@ export default class Game extends Phaser.Scene {
     if (this.cells.some(cell => cell.empty)) this.fillCells()
   }
 
+  private checkField(): void {
+    this.fieldIsChecked = true
+    if (this.tiles.every(tile => this.sameColorNearbyTiles(tile).length === 0)) this.recreateField()
+  }
+
+  private recreateField(): void {
+    this.recreationTry++
+    if (this.recreationTry < 2) {
+      const fieldTilesColors = []
+      this.tiles.forEach(tile => fieldTilesColors.push(tile.color))
+      Phaser.Utils.Array.Shuffle(fieldTilesColors)
+      this.tiles.forEach((tile, i) => tile.setColor(fieldTilesColors[i]))
+    } else this.gameOver(this.lang.noMatches)
+  }
+
   private calcScore(tiles: number): void {
     const defaultIncriment = 100
     this.blowScore = tiles * defaultIncriment
@@ -211,15 +233,19 @@ export default class Game extends Phaser.Scene {
   private checkGameOver(): void {
     if (this.score >= this.scoreTarget) {
       this.win = true
-      this.gameResult()
+      this.gameOver(this.lang.targetReach)
     } else if (this.turns <= 0) {
-      this.gameResult()
+      this.gameOver(this.lang.outOfTurns)
     }
   }
   
-  private gameResult(): void {
-    this.gameOver = true
+  private gameOver(reason: string): void {
+    this.gameIsOver = true
     console.log('game over | win: ', this.win);
-    this.scene.launch('Modal', { type: 'gameOver', info: this.win })
+    this.scene.launch('Modal', { type: 'gameOver', info: { win: this.win, reason } })
+  }
+
+  public update(): void {
+    if (!this.fieldIsChecked && !this.isTilesMoving && !this.gameIsOver) this.checkField()
   }
 }

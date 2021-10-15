@@ -38,7 +38,7 @@ export default class Tile extends Phaser.GameObjects.Sprite {
   public moveToCell(): this {
     const cell = this.scene.findCellByID(this.id)
     // const distance = Phaser.Math.Distance.Between(this.x, this.y, cell.x, cell.y)
-    let duration = !this.scene.gameStarted ? 900 : 350
+    let duration = !this.scene.gameIsStarted ? 900 : 350
     if (cell.empty) cell.empty = false
     this.moveAni = this.scene.tweens.add({
       targets: this,
@@ -52,7 +52,7 @@ export default class Tile extends Phaser.GameObjects.Sprite {
 
   private setClick(): this {
     this.on('pointerup', (): void => {
-      if (!this.scene.isTilesMoving() && !this.scene.gameOver) {
+      if (!this.scene.isTilesMoving() && !this.scene.gameIsOver) {
         this.scene.clickPosition = { x: this.getCenter().x, y: this.getCenter().y }
         const sameColorNearbyTiles = this.scene.sameColorNearbyTiles(this)
         if (sameColorNearbyTiles.length > 0) {
@@ -80,6 +80,11 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     })
     if (chainNewElements.length > 0) this.pushChain(chainNewElements)
     else this.scene.blowChain()
+  }
+
+  public setColor(color: string): void {
+    this.color = color
+    this.setTexture(color)
   }
 
   public setNewCell(cell: Icell): this {
