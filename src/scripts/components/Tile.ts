@@ -10,6 +10,8 @@ export default class Tile extends Phaser.GameObjects.Sprite {
   public color: string
 
   public moveAni: Phaser.Tweens.Tween
+  private pulseAni: Phaser.Tweens.Tween
+  private pulseSprite: Phaser.GameObjects.Sprite
 
   constructor(
     scene: Game,
@@ -32,19 +34,17 @@ export default class Tile extends Phaser.GameObjects.Sprite {
 
   private init(): void {
     this.scene.add.existing(this).setDepth(this.row).setOrigin(0, 1).setMask(this.scene.mask).setInteractive().setClick().moveToCell()
-    // this.scene.add.existing(this).setDepth(this.row).setOrigin(0, 1).setInteractive().setClick().moveToCell()
+    this.pulseSprite = this.scene.add.sprite(0, 0, this.color).setDepth(this.depth + 1).setVisible(false)
   }
 
   public moveToCell(): this {
     const cell = this.scene.findCellByID(this.id)
-    // const distance = Phaser.Math.Distance.Between(this.x, this.y, cell.x, cell.y)
     let duration = !this.scene.gameIsStarted ? 900 : 350
     if (cell.empty) cell.empty = false
     this.moveAni = this.scene.tweens.add({
       targets: this,
       y: cell.y,
       duration,
-      // ease: 'Cubic.easeIn'
       ease: 'Quad.easeIn'
     })
     return this
@@ -54,11 +54,17 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     this.on('pointerup', (): void => {
       if (!this.scene.isTilesMoving() && !this.scene.gameIsOver) {
         this.scene.clickPosition = { x: this.getCenter().x, y: this.getCenter().y }
-        const sameColorNearbyTiles = this.scene.sameColorNearbyTiles(this)
-        if (sameColorNearbyTiles.length > 0) {
-          this.scene.chain = sameColorNearbyTiles
-          this.scene.chain.push(this)
-          this.pushChain(sameColorNearbyTiles)
+        if (this.scene.bombBoosterIsActive) {
+          this.scene.chain = this.scene.tilesForBlow(this)
+          this.scene.bombToggle()
+          this.scene.blowChain()
+        } else {
+          const sameColorNearbyTiles = this.scene.nearbyTilesSameColor(this)
+          if (sameColorNearbyTiles.length > 0) {
+            this.scene.chain = sameColorNearbyTiles
+            this.scene.chain.push(this)
+            this.pushChain(sameColorNearbyTiles)
+          }
         }
       }
     })
@@ -72,7 +78,7 @@ export default class Tile extends Phaser.GameObjects.Sprite {
   private pushChain(arr: Tile[]): void {
     let chainNewElements = []
     arr.forEach(tile => {
-      const sameColorNearbyTiles = this.scene.sameColorNearbyTiles(tile).filter(el => this.scene.chain.every(chainTile => chainTile.id !== el.id))
+      const sameColorNearbyTiles = this.scene.nearbyTilesSameColor(tile).filter(el => this.scene.chain.every(chainTile => chainTile.id !== el.id))
       if (sameColorNearbyTiles.length > 0) {
         this.scene.chain = this.scene.chain.concat(sameColorNearbyTiles)
         chainNewElements = chainNewElements.concat(sameColorNearbyTiles)
@@ -80,6 +86,26 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     })
     if (chainNewElements.length > 0) this.pushChain(chainNewElements)
     else this.scene.blowChain()
+  }
+
+  public pulse(): this {
+    this.stopPulse()
+    this.pulseAni = this.scene.tweens.add({
+      onStart: (): void => { this.pulseSprite.setPosition(this.getCenter().x, this.getCenter().y).setVisible(true) },
+      targets: this.pulseSprite,
+      scale: 1.1,
+      alpha: 0,
+      duration: 1000,
+      loopDelay: 100,
+      loop: -1
+    })
+    return this
+  }
+
+  public stopPulse(): this {
+    this.pulseAni?.remove()
+    this.pulseSprite.setScale(this.scale).setAlpha(1).setVisible(false)
+    return this
   }
 
   public setColor(color: string): void {
@@ -94,6 +120,7 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     this.row = cell.row
     this.id = cell.id
     this.setDepth(this.row)
+    this.pulseSprite.setDepth(this.depth + 1)
     return this
   }
 
@@ -102,6 +129,8 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     this.col = null
     this.row = null
     this.id = ''
+    this.stopPulse()
+    this.pulseSprite.destroy()
     this.setVisible(false)
     this.blowAnimation()
   }
@@ -117,7 +146,6 @@ export default class Tile extends Phaser.GameObjects.Sprite {
       ease: 'Quad.easeIn',
       onComplete: (): void => {
         tile.destroy()
-        console.log('Tile ~ blowAnimation ~ tileTint', tileTint.alpha)
         tileTint.destroy()
         this.destroy()
       }

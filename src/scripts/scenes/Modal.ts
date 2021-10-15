@@ -18,7 +18,7 @@ export default class Modal extends Phaser.Scene {
   private y: number
   private bgAniDuration: number
 
-  private yOffset: number
+  private offsetY: number
 
 
   public init(data: { type: string, info?: any }): void {
@@ -29,7 +29,7 @@ export default class Modal extends Phaser.Scene {
     this.x = this.cameras.main.centerX
     this.y = this.cameras.main.centerY
     this.bgAniDuration = 300
-    this.yOffset = 40
+    this.offsetY = 40
   }
 
 
@@ -54,7 +54,7 @@ export default class Modal extends Phaser.Scene {
     const titleText = this.info.win ? this.lang.win : this.lang.lose
     const color = this.info.win ? colors.green.str : colors.red.str
 
-    this.bg = this.add.sprite(this.x, this.y + this.yOffset, 'progress-bar-bg').setScale(0.7, 1.3).setAlpha(0)
+    this.bg = this.add.sprite(this.x, this.y + this.offsetY, 'progress-bar-bg').setScale(0.7, 1.3).setAlpha(0)
 
     const title: Phaser.GameObjects.Text = this.add.text(this.bg.getTopCenter().x, this.bg.getTopCenter().y + 16, titleText, {
       font: '40px Marvin', color
@@ -79,7 +79,7 @@ export default class Modal extends Phaser.Scene {
     this.tweens.add({
       targets,
       ease: 'Power2',
-      y: `-=${this.yOffset}`,
+      y: `-=${this.offsetY}`,
       alpha: 1,
       duration: 400,
       delay: this.bgAniDuration

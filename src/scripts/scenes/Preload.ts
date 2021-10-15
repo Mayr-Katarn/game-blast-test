@@ -3,6 +3,7 @@ const blue: any = require("./../../assets/images/tiles/blue.png");
 const green: any = require("./../../assets/images/tiles/green.png");
 const yellow: any = require("./../../assets/images/tiles/yellow.png");
 const pink: any = require("./../../assets/images/tiles/pink.png");
+const bomb: any = require("./../../assets/images/tiles/bomb.png");
 const tileTint: any = require("./../../assets/images/tiles/tile-tint.png");
 
 const field: any = require("./../../assets/images/field.png");
@@ -15,6 +16,7 @@ const progressBarBg: any = require("./../../assets/images/hud/progress-bar-bg.pn
 const progressBarLine: any = require("./../../assets/images/hud/progress-bar-line.png");
 const scoreBar: any = require("./../../assets/images/hud/score-bar.png");
 const ball: any = require("./../../assets/images/hud/ball.png");
+const busterBtn: any = require("./../../assets/images/hud/buster-btn.png");
 
 
 export default class Preload extends Phaser.Scene {
@@ -48,6 +50,7 @@ export default class Preload extends Phaser.Scene {
     this.load.image('green', green)
     this.load.image('yellow', yellow)
     this.load.image('pink', pink)
+    this.load.image('bomb', bomb)
     this.load.image('tile-tint', tileTint)
     this.load.image('line-side', lineSide)
     this.load.image('line-mid', lineMid)
@@ -60,6 +63,7 @@ export default class Preload extends Phaser.Scene {
     this.load.image('progress-bar-line', progressBarLine)
     this.load.image('score-bar', scoreBar)
     this.load.image('ball-bar', ball)
+    this.load.image('buster-btn', busterBtn)
   }
 
   public create(): void {

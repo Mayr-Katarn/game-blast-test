@@ -24,6 +24,12 @@ export default class Hud extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text
   private scoreTextAni: Phaser.Time.TimerEvent
 
+  private bombBtn: Phaser.GameObjects.Sprite
+  private bombBtnText: Phaser.GameObjects.Text
+  private shuffleBtn: Phaser.GameObjects.Sprite
+  private shuffleBtnText: Phaser.GameObjects.Text
+
+
   public init(): void {
     this.lang = langs.ru
     this.gameScene = this.game.scene.keys['Game'] as Game
@@ -34,6 +40,7 @@ export default class Hud extends Phaser.Scene {
   public create(): void {
     this.createTopBar()
     this.createScoreAndTurnsBar()
+    this.createBusters()
   }
 
   private createTopBar(): void {
@@ -49,6 +56,20 @@ export default class Hud extends Phaser.Scene {
     this.turnsText = this.add.text(this.scoreBarBall.getCenter().x, this.scoreBarBall.getCenter().y - 6, `${this.gameScene.turns}`, { font: '56px Marvin', color: 'white' }).setOrigin(0.5)
     this.scoreTitle = this.add.text(this.scoreBarBg.getCenter().x, this.scoreBarBg.getCenter().y + 26, this.lang.points, { font: '18px Marvin', color: 'white' }).setOrigin(0.5, 0)
     this.scoreText = this.add.text(this.scoreTitle.getBottomCenter().x, this.scoreTitle.getBottomCenter().y, `${this.gameScene.score}`, { font: '30px Marvin', color: 'white' }).setOrigin(0.5, 0)
+  }
+
+  private createBusters(): void {
+    const offsetX = 100
+    const offsetY = 500
+    this.bombBtn = this.add.sprite(this.camera.centerX - offsetX, this.camera.centerY + offsetY, 'buster-btn').setScale(1.3).setInteractive()
+    this.bombBtnText = this.add.text(this.bombBtn.getCenter().x, this.bombBtn.getCenter().y, this.lang.bomb, { font: '20px Marvin', color: 'white' }).setOrigin(0.5)
+    this.shuffleBtn = this.add.sprite(this.camera.centerX + offsetX, this.camera.centerY + offsetY, 'buster-btn').setScale(1.3).setInteractive()
+    this.shuffleBtnText = this.add.text(this.shuffleBtn.getCenter().x, this.shuffleBtn.getCenter().y, this.lang.shuffle, {
+      font: '20px Marvin', align: 'center', color: 'white', wordWrap: { width: 90, useAdvancedWrap: true }
+    }).setOrigin(0.5)
+
+    this.bombBtn.on('pointerup', (): void => { this.gameScene.bombToggle() })
+    this.shuffleBtn.on('pointerup', (): void => { this.gameScene.recreateField(true) })
   }
 
   public updateTurns(): void {

@@ -9,5 +9,7 @@ export default {
     outOfTurns: 'закончились ходы',
     noMatches: 'нет совпадений',
     continue: 'продолжить',
+    bomb: 'бомба',
+    shuffle: 'перемешать'
   },
 }

@@ -35,11 +35,10 @@ export default class Game extends Phaser.Scene {
   public chain: Tile[]
   public pointerBall: Tile
   public clickPosition: { x: number, y: number }
+  public bombBoosterIsActive: boolean
   private fieldIsChecked: boolean
   private recreationTry: number
-  // public activeBalls: Tile[]
-  // public matchBalls: Tile[]
-  // public checkingMatch: boolean
+  private bombRadius: number
 
   public score: number
   public blowScore: number
@@ -73,8 +72,10 @@ export default class Game extends Phaser.Scene {
     this.tiles = []
     this.chain = []
     this.clickPosition = { x: 0, y: 0 }
+    this.bombBoosterIsActive = false
     this.fieldIsChecked = false
     this.recreationTry = 0
+    this.bombRadius = 2
     // this.activeBalls = []
     // this.checkingMatch = false
 
@@ -82,7 +83,7 @@ export default class Game extends Phaser.Scene {
     this.scoreTarget = config.targetScore
     this.blowScore = 0
     this.score = 0
-    this.debug = false
+    this.debug = true
   }
 
 
@@ -148,16 +149,34 @@ export default class Game extends Phaser.Scene {
   // public botTile(tile: Tile): Tile { return this.tiles.find(el => el.id === `${tile.col}-${tile.row - 1}`) }
   // public leftTile(tile: Tile): Tile { return this.tiles.find(el => el.id === `${tile.col - 1}-${tile.row}`) }
   // public rightTile(tile: Tile): Tile { return this.tiles.find(el => el.id === `${tile.col + 1}-${tile.row}`) }
-  public sameColorNearbyTiles(tile: Tile): Tile[] {
+  public nearbyTiles(tile: Tile): Tile[] {
     return this.tiles.filter(el =>
-      (el.id === `${tile.col}-${tile.row + 1}` ||
+      el.id === `${tile.col}-${tile.row + 1}` ||
       el.id === `${tile.col}-${tile.row - 1}` ||
       el.id === `${tile.col - 1}-${tile.row}` ||
-      el.id === `${tile.col + 1}-${tile.row}`) &&
-      el.color === tile.color
+      el.id === `${tile.col + 1}-${tile.row}`
     )
   }
-  // private isHave
+  public nearbyTilesSameColor(tile: Tile): Tile[] { return this.nearbyTiles(tile).filter(el => el.color === tile.color) }
+  public tilesForBlow(tile: Tile): Tile[] {
+    let hitedTiles = [tile]
+    let layer = [tile]
+    let nextLayer = []
+    for (let i = 0; i < this.bombRadius; i++) {
+      layer.forEach(layerTile => {
+        this.nearbyTiles(layerTile).forEach(nrbTile => {
+          if (
+            hitedTiles.every(el => el.id !== nrbTile.id) &&
+            nextLayer.every(el => el.id !== nrbTile.id)
+          ) nextLayer.push(nrbTile)
+        })
+      })
+      layer = nextLayer
+      hitedTiles = hitedTiles.concat(nextLayer)
+      nextLayer = []
+    }
+    return hitedTiles
+  }
 
   public blowChain(): void {
     console.log('Game ~ blowChain ~ this.chain', this.chain.map(tile => tile.id))
@@ -203,17 +222,31 @@ export default class Game extends Phaser.Scene {
 
   private checkField(): void {
     this.fieldIsChecked = true
-    if (this.tiles.every(tile => this.sameColorNearbyTiles(tile).length === 0)) this.recreateField()
+    if (this.tiles.every(tile => this.nearbyTilesSameColor(tile).length === 0)) this.recreateField()
   }
 
-  private recreateField(): void {
-    this.recreationTry++
-    if (this.recreationTry < 2) {
-      const fieldTilesColors = []
-      this.tiles.forEach(tile => fieldTilesColors.push(tile.color))
-      Phaser.Utils.Array.Shuffle(fieldTilesColors)
-      this.tiles.forEach((tile, i) => tile.setColor(fieldTilesColors[i]))
-    } else this.gameOver(this.lang.noMatches)
+  public recreateField(fromBooster: boolean = false): void {
+    if (!this.gameIsOver && !this.isTilesMoving()) {
+      if (!fromBooster) this.recreationTry++
+      if (this.recreationTry < 2) {
+        const fieldTilesColors = []
+        this.tiles.forEach(tile => fieldTilesColors.push(tile.color))
+        Phaser.Utils.Array.Shuffle(fieldTilesColors)
+        this.tiles.forEach((tile, i) => tile.setColor(fieldTilesColors[i]))
+      } else this.gameOver(this.lang.noMatches)
+    }
+  }
+
+  public bombToggle(): void {
+    if (!this.gameIsOver && !this.isTilesMoving()) {
+      if (!this.bombBoosterIsActive) {
+        this.bombBoosterIsActive = true
+        this.tiles.forEach(tile => tile.pulse())
+      } else {
+        this.bombBoosterIsActive = false
+        this.tiles.forEach(tile => tile.stopPulse())
+      }
+    }
   }
 
   private calcScore(tiles: number): void {
