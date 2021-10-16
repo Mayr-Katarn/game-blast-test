@@ -1,6 +1,8 @@
 export default {
   ru: {
     index: 'ru',
+    title: 'BLAST',
+    start: 'начать',
     progress: 'прогресс',
     points: 'очки:',
     win: 'победа',

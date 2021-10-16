@@ -29,6 +29,8 @@ export default class Hud extends Phaser.Scene {
   private shuffleBtn: Phaser.GameObjects.Sprite
   private shuffleBtnText: Phaser.GameObjects.Text
 
+  private pauseBtn: Phaser.GameObjects.Sprite
+
 
   public init(): void {
     this.lang = langs.ru
@@ -41,6 +43,7 @@ export default class Hud extends Phaser.Scene {
     this.createTopBar()
     this.createScoreAndTurnsBar()
     this.createBusters()
+    this.createPauseButton()
   }
 
   private createTopBar(): void {
@@ -70,6 +73,17 @@ export default class Hud extends Phaser.Scene {
 
     this.bombBtn.on('pointerup', (): void => { this.gameScene.bombToggle() })
     this.shuffleBtn.on('pointerup', (): void => { this.gameScene.recreateField(true) })
+  }
+
+  private createPauseButton(): void {
+    this.pauseBtn = this.add.sprite(this.camera.width, 0, 'pause-btn').setOrigin(1, 0).setInteractive()
+    this.pauseBtn.on('pointerup', (): void => { this.stopGame() })
+  }
+
+  private stopGame(): void {
+    this.scene.stop()
+    this.scene.stop('Game')
+    this.scene.start('MainMenu')
   }
 
   public updateTurns(): void {

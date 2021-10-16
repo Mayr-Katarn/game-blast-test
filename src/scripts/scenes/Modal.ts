@@ -65,10 +65,10 @@ export default class Modal extends Phaser.Scene {
     }).setOrigin(0.5, 0).setStroke('#000000', 3).setAlpha(0)
 
     const btn = new ButtonMain(
-      this,this.x, subtitle.getBottomCenter().y + 50,
+      this, this.x, subtitle.getBottomCenter().y + 50,
       (): void => { this.close() },
       this.lang.continue
-    )
+    ).setAlpha(0)
 
     const targets = btn.elements.concat([this.bg, title, subtitle])
     this.fadeOut(targets)
@@ -78,6 +78,7 @@ export default class Modal extends Phaser.Scene {
   private fadeOut(targets: any[]): void {
     this.tweens.add({
       targets,
+      onStart: (): void => { targets.forEach(el => el?.setAlpha(0)) },
       ease: 'Power2',
       y: `-=${this.offsetY}`,
       alpha: 1,
@@ -89,5 +90,8 @@ export default class Modal extends Phaser.Scene {
 
   private close(): void {
     this.scene.stop()
+    this.scene.stop('Hud')
+    this.scene.stop('Game')
+    this.scene.start('MainMenu')
   }
 }

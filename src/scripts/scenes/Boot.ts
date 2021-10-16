@@ -28,14 +28,12 @@ export default class Boot extends Phaser.Scene {
     this.load.image('pixel', pixel)
   }
 
-
   public update(): void {
     if (this.fontsReady) {
       this.fontsReady = false
       this.start()
     }
   }
-
   private loadFonts(): void {
     let scene: Boot = this;
     Webfont.load({
@@ -44,7 +42,6 @@ export default class Boot extends Phaser.Scene {
     })
   }
   
-
   private start(): void {
     this.scene.stop()
     this.scene.start('Preload')

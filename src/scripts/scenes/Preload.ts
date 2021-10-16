@@ -16,6 +16,7 @@ const progressBarBg: any = require("./../../assets/images/hud/progress-bar-bg.pn
 const progressBarLine: any = require("./../../assets/images/hud/progress-bar-line.png");
 const scoreBar: any = require("./../../assets/images/hud/score-bar.png");
 const ball: any = require("./../../assets/images/hud/ball.png");
+const pause: any = require("./../../assets/images/hud/pause.png");
 const busterBtn: any = require("./../../assets/images/hud/buster-btn.png");
 
 
@@ -25,26 +26,23 @@ export default class Preload extends Phaser.Scene {
   }
 
   public preload(): void {
-
-    // прогресс загрузки
-    this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'pixel').setTint(0x4E2393).setOrigin(0)
+    this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'pixel').setTint(0x50acc7).setOrigin(0)
     let text: Phaser.GameObjects.Text = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 120, '0%', {
       font: '24px Marvin',
-      color: '#54D7BD'
+      color: '#ffffff'
     }).setDepth(1).setOrigin(0.5, 0.5);
   
-    let progress: Phaser.GameObjects.TileSprite = this.add.tileSprite(this.cameras.main.centerX - 230, this.cameras.main.centerY - 100, 0, 130, 'load').setOrigin(0, 0.5);
+    const progress: Phaser.GameObjects.TileSprite = this.add.tileSprite(this.cameras.main.centerX - 230, this.cameras.main.centerY - 100, 0, 130, 'load').setTint(0x63d100).setOrigin(0, 0.5);
 
     this.load.on('progress', (value: number): void => {
-      let percent: number = Math.round(value * 100);
-      let onePercent: number = 420 / 90;
-      let bar: number = Math.round(percent * onePercent);
+      const percent: number = Math.round(value * 100);
+      const onePercent: number = 420 / 90;
+      const bar: number = Math.round(percent * onePercent);
   
       progress.setDisplaySize(bar, 10)
       text.setText(percent + '%');
     });
 
-    
     this.load.image('red', red)
     this.load.image('blue', blue)
     this.load.image('green', green)
@@ -63,13 +61,12 @@ export default class Preload extends Phaser.Scene {
     this.load.image('progress-bar-line', progressBarLine)
     this.load.image('score-bar', scoreBar)
     this.load.image('ball-bar', ball)
+    this.load.image('pause-btn', pause)
     this.load.image('buster-btn', busterBtn)
   }
 
   public create(): void {
     this.scene.stop()
-    // this.scene.start('MainMenu')
-    this.scene.start('Game')
-    this.scene.start('Hud')
+    this.scene.start('MainMenu')
   }
 }

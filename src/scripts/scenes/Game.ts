@@ -51,8 +51,6 @@ export default class Game extends Phaser.Scene {
   private field: Phaser.GameObjects.Sprite
 
   public init(): void {
-    console.log('Game'); 
-
     this.lang = langs.ru
     this.hud = this.game.scene.keys['Hud'] as Hud
     this.camera = this.cameras.main
@@ -61,26 +59,27 @@ export default class Game extends Phaser.Scene {
     this.gameIsStarted = false
     this.gameIsOver = false
     this.win = false
-    this.rows = 8
-    this.cols = 8
-    this.cellWidth = 72
-    this.cellHeight = 76
-    this.fieldHeight = this.rows * this.cellHeight
-    this.fieldWidth = this.cols * this.cellWidth
+    this.rows = 8 // количество рядов
+    this.cols = 8 // количество колонок
+    this.cellWidth = 72 // ширина ячейки
+    this.cellHeight = 76 // высота ячейки
+    this.fieldWidth = this.cols * this.cellWidth // ширина игрового поля
+    this.fieldHeight = this.rows * this.cellHeight // высота игрового поля
 
-    this.fieldOriginX = this.cameras.main.centerX - this.fieldWidth / 2
+    // нижняя левая точка игрового поля
+    this.fieldOriginX = this.cameras.main.centerX - this.fieldWidth / 2 
     this.fieldOriginY = this.cameras.main.centerY + 60 + this.fieldHeight / 2
 
-    this.cells = []
-    this.tiles = []
-    this.chain = []
+    this.cells = [] // все ячейки
+    this.tiles = [] // все плитки поля
+    this.chain = [] // цепочка плиток для сжигания
     this.clickPosition = { x: 0, y: 0 }
     this.bombBoosterIsActive = false
     this.fieldIsChecked = false
-    this.recreationTry = 0
-    this.bombRadius = 2
+    this.recreationTry = 0 // попытки автоматического пересоздания поля, если нет совпадений для сжигания (если после пересоздания совпадений нет, то игрок проигрывает)
+    this.bombRadius = 2 // радиус взрыва бомб
     this.boosterWasUsed = false
-    this.creationSuperTileCondition = 5
+    this.creationSuperTileCondition = 5 // количество плиток, которое нужно сжечь за раз, чтобы потучить супер плитку
 
     this.turns = config.turns
     this.scoreTarget = config.targetScore
@@ -131,7 +130,6 @@ export default class Game extends Phaser.Scene {
     })
   }
 
-
   public shake(force: number = 1) {
     switch (force) {
       case 1: force = 0.001
@@ -148,10 +146,6 @@ export default class Game extends Phaser.Scene {
   public findCellByID(id: string): Icell { return this.cells.find(cell => cell.id === id) }
   public findTileByID(id: string): Tile { return this.tiles.find(tile => tile.id === id) }
   public isTilesMoving(): boolean { return this.tiles.some(tile => tile.moveAni.isPlaying()) }
-  // public topTile(tile: Tile): Tile { return this.tiles.find(el => el.id === `${tile.col}-${tile.row + 1}`) }
-  // public botTile(tile: Tile): Tile { return this.tiles.find(el => el.id === `${tile.col}-${tile.row - 1}`) }
-  // public leftTile(tile: Tile): Tile { return this.tiles.find(el => el.id === `${tile.col - 1}-${tile.row}`) }
-  // public rightTile(tile: Tile): Tile { return this.tiles.find(el => el.id === `${tile.col + 1}-${tile.row}`) }
   public nearbyTiles(tile: Tile): Tile[] {
     return this.tiles.filter(el =>
       el.id === `${tile.col}-${tile.row + 1}` ||
@@ -182,7 +176,7 @@ export default class Game extends Phaser.Scene {
   }
 
   public blowChain(): void {
-    console.log('Game ~ blowChain ~ this.chain', this.chain.map(tile => tile.id))
+    // console.log('Game ~ blowChain ~ this.chain', this.chain.map(tile => tile.id))
     this.calcScore(this.chain.length)
     if (!this.boosterWasUsed) {
       this.spendTurn()
@@ -196,7 +190,6 @@ export default class Game extends Phaser.Scene {
     this.fieldIsChecked = false
   }
 
-  // Заполение пустых ячеек
   public fillCells(): void {
     const emptyCells = this.cells.filter(cell => cell.empty).sort((a, b) => a.row - b.row)
     // console.log('1 ~ fillCells ~ emptyCells', emptyCells.map(cell => cell.id), emptyCells.every((cell1, i) => cell1?.id === this.lastEmptyCells[i]?.id))

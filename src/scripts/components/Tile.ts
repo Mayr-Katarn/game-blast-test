@@ -71,6 +71,7 @@ export default class Tile extends Phaser.GameObjects.Sprite {
     this.scene.chain = this.scene.tilesForBlow(this)
     this.scene.boosterWasUsed = true
     if (changeToggle) this.scene.bombToggle()
+    this.scene.shake(3)
     this.scene.blowChain()
   }
 
@@ -146,6 +147,7 @@ export default class Tile extends Phaser.GameObjects.Sprite {
   public setColor(color: string): void {
     this.color = color
     this.setTexture(color)
+    this.pulseSprite.setTexture(color)
   }
 
   public setNewCell(cell: Icell): this {

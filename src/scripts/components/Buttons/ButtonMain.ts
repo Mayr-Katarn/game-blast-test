@@ -48,9 +48,9 @@ export default class ButtonMain {
   private create(): void {
     const sprite = 'btn-pink'
 
-    this.btn = this.scene.add.sprite(this.x, this.y, sprite).setScale(this.btnScale).setDepth(5).setAlpha(0).setInteractive()
-    this.btnShadow = this.scene.add.sprite(this.btn.x, this.btn.y + 5, sprite).setTint(0x000000).setDepth(4).setScale(this.btnShadowScale).setAlpha(0)
-    this.btnText = this.scene.add.text(this.x, this.y, this.text, { font: '18px Marvin', color: '#ffffff' }).setDepth(this.btn.depth + 1).setScale(this.btnTextScale).setOrigin(0.5, 0.55).setAlpha(0)
+    this.btn = this.scene.add.sprite(this.x, this.y, sprite).setScale(this.btnScale).setDepth(5).setInteractive()
+    this.btnShadow = this.scene.add.sprite(this.btn.x, this.btn.y + 5, sprite).setTint(0x000000).setDepth(4).setScale(this.btnShadowScale)
+    this.btnText = this.scene.add.text(this.x, this.y, this.text, { font: '18px Marvin', color: '#ffffff' }).setDepth(this.btn.depth + 1).setScale(this.btnTextScale).setOrigin(0.5, 0.55)
 
     this.elements = [
       this.btn,
@@ -61,6 +61,11 @@ export default class ButtonMain {
     this.btn.on('pointerout', (): void => { this.out() })
     this.btn.on('pointerdown', (): void => { this.down() })
     this.btn.on('pointerup', (): void => { this.callback() })
+  }
+
+  public setAlpha(alpha: number): this {
+    this.elements.forEach(el => el?.setAlpha(alpha))
+    return this
   }
 
   private down(): void {
